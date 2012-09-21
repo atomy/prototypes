@@ -16,9 +16,9 @@ class Buymenu implements MouseEvent {
   }
   
   void draw() {
-    stroke(255);
+    stroke(0);
     noFill();
-    rect(pos.x, pos.y, 550, 100);
+    rect(pos.x, pos.y, 550, 125);
     for(MenuItem item : items) {
       item.draw();
     }
@@ -47,17 +47,19 @@ class MenuItem implements MouseEvent
   }
   
   void draw() {
-    stroke(255);
+    stroke(0);
     noFill();
-    rect(buy.pos.x + pos.x, buy.pos.y + pos.y, 70, 70);
+    rect(buy.pos.x + pos.x, buy.pos.y + pos.y, 70, 95);    
     if(text == "kugel") {
       fill(200,100, 200);
       stroke(50,50,50);      
       ellipse(pos.x+35+buy.pos.x, pos.y+35+buy.pos.y, 50, 50);
+      text("$ 30", buy.pos.x + pos.x + 20, buy.pos.y + pos.y + 80);
     } else if (text == "wuerfel") {
       fill(0,200,200);
       stroke(50,50,50);      
-      rect(pos.x+10+buy.pos.x, pos.y+10+buy.pos.y, 50, 50);    
+      rect(pos.x+10+buy.pos.x, pos.y+10+buy.pos.y, 50, 50);   
+      text("$ 20", buy.pos.x + pos.x + 20, buy.pos.y + pos.y + 80); 
     }
   }
   

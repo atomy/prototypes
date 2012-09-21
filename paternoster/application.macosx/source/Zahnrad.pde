@@ -13,16 +13,11 @@ class Zahnrad
   }
   
   void draw() {
-    noStroke();
-    rectMode(CENTER);
-    noFill();
     pushMatrix();
     translate(pos.x, pos.y);
-    rotate(this.angle);
-    // image
-    fill(255, 0, 0);
-    rect(0, 0, 50, 50);
-    popMatrix();
+    rotate(this.angle);  
+    image(img_zahnrad, -52, -52,104, 104);
+    popMatrix();    
   }
   
   void tick(float delta) {
@@ -31,7 +26,7 @@ class Zahnrad
     lastTick = millis();
     this.angle += PI/64;
     
-    if(abs(this.angle) >= PI)
+    if(abs(this.angle) >= PI*2)
       this.angle = 0.0f;
   }
 }

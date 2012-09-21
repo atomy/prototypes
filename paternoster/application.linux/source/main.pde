@@ -6,6 +6,8 @@ AudioSnippet audio_buy_success;
 AudioSnippet audio_buy_fail;
 AudioSnippet audio_object_connect;
 AudioSnippet audio_object_disconnect;
+
+PImage img_zahnrad;
   
 int lastTick;
 Paternoster patern  = null;
@@ -43,7 +45,7 @@ void setup() {
   mDrawables.add(rew);
   font = loadFont("ArialMT-12.vlw");
   textFont(font);
-  stats_money = 100;
+  stats_money = 300;
   
   minim = new Minim (this);
   
@@ -52,10 +54,12 @@ void setup() {
   audio_buy_fail = minim.loadSnippet("buy_fail.wav");
   audio_object_connect = minim.loadSnippet("object_connect.mp3");
   audio_object_disconnect = minim.loadSnippet("object_disconnect.wav");
+  
+  img_zahnrad = loadImage("zahnrad2.png");
 }
 
 void draw() {
-  background(0);
+  background(255);
   if(millis() - lastTick > 100) {
     tick(millis()-lastTick);
   }

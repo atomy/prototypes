@@ -7,8 +7,8 @@ class Paternoster
   ArrayList<Laufband> mLaufbaender;  
   
   Paternoster() {
-    r1 = new Zahnrad(this, new PVector(420, 110));
-    r2 = new Zahnrad(this, new PVector(420, 430));
+    r1 = new Zahnrad(this, new PVector(425, 104));
+    r2 = new Zahnrad(this, new PVector(425, 457));
     mLaufbaender = new ArrayList<Laufband>();
     p1 = new Pfad(this);
     //dummy = p1.GetStartPoint();
@@ -28,14 +28,15 @@ class Paternoster
     noFill();
     stroke(255, 0, 0);
     r1.draw();
-    r2.draw();
+    r2.draw();      
     p1.draw();
+    
     for(MountPoint mp : mPoints) {
       mp.draw();
     }
     for(Laufband b : mLaufbaender) {
       b.draw();
-    }    
+    }  
     //noStroke();
     //fill(255, 0, 0);
     //ellipse(dummy.x, dummy.y, 50, 50);

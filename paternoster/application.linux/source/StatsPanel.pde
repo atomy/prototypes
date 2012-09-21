@@ -12,7 +12,7 @@ class StatsPanel {
   }
   
   void draw() {
-    stroke(255);
+    stroke(0);
     noFill();
     rect(pos.x, pos.y, 225, 150);
     for(StatsItem item : items) {
@@ -34,10 +34,10 @@ class StatsItem
   }
   
   void draw() {
-    stroke(255);
+    stroke(0);
     noFill();
     if(text == "money") {
-      fill(255);
+      fill(0);
       noStroke();
       String moneyString = "money:       $ " + stats_money;
       text(moneyString, pos.x+panel.pos.x, pos.y+panel.pos.y+20);

@@ -10,7 +10,7 @@ class KugelMounter extends Mounter
   
   void draw() {
     noFill();
-    stroke(255);
+    stroke(0);
 //    strokeWeight();
     pushMatrix();
     translate(pos.x, pos.y);
@@ -32,7 +32,7 @@ class RectMounter extends Mounter
   
   void draw() {
     noFill();
-    stroke(255);
+    stroke(0);
 //    strokeWeight();
     pushMatrix();
     translate(pos.x, pos.y);
