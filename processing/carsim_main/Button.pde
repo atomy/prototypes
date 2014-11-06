@@ -28,7 +28,7 @@ public class Button extends Frame {
     stroke(strokeColor);
     fill(fillColor);
     rectMode(CORNER);
-    rect(round(x), round(y), round(w), round(h));
+    rect(round(pos.x), round(pos.y), round(w), round(h));
   }
   
   void resetColor() {
@@ -59,9 +59,9 @@ public class LabelButton extends Button {
     stroke(strokeColor);
     fill(fillColor);
     rectMode(CORNER);
-    rect(x, y, w, h);
+    rect(pos.x, pos.y, w, h);
     fill(0);
     textFont(font2);
-    text(label, this.x+20, this.y+20);  
+    text(label, pos.x+20, pos.y+20);  
   }
 }

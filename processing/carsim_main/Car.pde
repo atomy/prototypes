@@ -25,7 +25,7 @@ public class Car extends Button {
     fill(fillColor);
     rectMode(CENTER);
     pushMatrix();
-    translate(x, y);
+    translate(pos.x, pos.y);
     rotate(angle);
     rect(0, 0, w, h);
     popMatrix();
@@ -62,7 +62,7 @@ public class Car extends Button {
   
   void update() {
     updateMoveDir();
-    x += moveDir.x;
-    y += moveDir.y;
+    pos.x += moveDir.x;
+    pos.y += moveDir.y;
   }
 }

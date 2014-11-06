@@ -9,11 +9,11 @@ public class FrameContainer extends Frame {
   void draw() {
     super.draw();
     pushMatrix();
-    translate(x, y);
+    translate(pos.x, pos.y);
 
     for (int i = 0; i < elements.size(); i++) {
       Frame f = (Frame) elements.get(i);
-      f.setOffset(new PVector(x, y));
+      f.setOffset(new PVector(pos.x, pos.y));
 
       if(f.deleteMe) {
         elements.remove(i);
@@ -33,10 +33,10 @@ public class FrameContainer extends Frame {
     int maxHeight = 0;
     int maxWide = 0;
     for(Frame e : elements) {
-      if(e.h+ (int)e.y > maxHeight)
-        maxHeight = e.h+ (int)e.y;
-      if(e.w+ (int)e.x > maxWide)
-        maxWide = e.w+ (int)e.x;
+      if(e.h+ (int)e.pos.y > maxHeight)
+        maxHeight = e.h+ (int)e.pos.y;
+      if(e.w+ (int)e.pos.x > maxWide)
+        maxWide = e.w+ (int)e.pos.x;
     }
     h = maxHeight+10;
     w = maxWide+10;
@@ -47,10 +47,10 @@ public class FrameContainer extends Frame {
     for(Frame f : elements) {
       if(f.bDisabled)
         continue;
-      if(x > f.x && x < f.x+f.w && y > f.y && y < f.y+f.h) {
-//        println("FrameContainer::onClick() forward!");
-        //f.onClick(x-this.x, y-this.y);   
-      }
+//      if(x > f.x && x < f.x+f.w && y > f.y && y < f.y+f.h) {
+////        println("FrameContainer::onClick() forward!");
+//        //f.onClick(x-this.x, y-this.y);   
+//      }
     }
   }
 }

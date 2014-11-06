@@ -1,13 +1,13 @@
 public class Frame {
-  float x, y;
   int w, h;
   PVector offset = new PVector(0,0);
+  PVector pos = new PVector(0,0);
   boolean bDisabled, deleteMe;
   boolean debug = true;
   
   Frame(float x, float y, int w, int h) {
-    this.x = x;
-    this.y = y;
+    pos.x = x;
+    pos.y = y;
     this.w = w;
     this.h = h;
     app.registerDraw(this);
@@ -23,22 +23,22 @@ public class Frame {
     stroke(0);
     fill(255);
     rectMode(CORNER);
-    rect(round(x), round(y), round(w), round(h));
+    rect(round(pos.x), round(pos.y), round(w), round(h));
   }
   
   void debugDraw() {
     if (debug) {
       fill(0);
-      text("x: " + x + " y: " + y, x, y);
+      text("x: " + pos.x + " y: " + pos.y, pos.x, pos.y);
     }
   }
   
   float getX() {
-    return this.x;
+    return pos.x;
   }
   
   float getY() {
-    return this.y;
+    return pos.y;
   }
   
   int getW() {
@@ -56,13 +56,17 @@ public class Frame {
   }
   
   PVector getVector() {
-    return new PVector(x, y);
+    return pos;
   }
   
   boolean isWithin(PVector in) {
-    if (in.x >= x-offset.x && in.y >= y-offset.y && in.x <= x-offset.x+w && in.y <= y-offset.y+h) {
+    if (in.x >= getReal().x && in.y >= getReal().y && in.x <= getReal().x+w && in.y <= getReal().y+h) {
       return true;
     }
     return false;
+  }
+  
+  PVector getReal() {
+    return PVector.add(offset, pos);
   }
 }
