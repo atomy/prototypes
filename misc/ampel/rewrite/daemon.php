@@ -50,6 +50,17 @@ function checkInternetConnection($host = 'www.google.com')
     return (bool) @fsockopen($host, 80, $errNo, $errStr, 20);
 }
 
+function checkVpnConnection()
+{
+    exec("/bin/ping -W 2 -n -c 3 10.0.4.1", $outcome, $status);
+
+    if (0 == $status) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /**
  * @param $value
  * @throws Exception
@@ -95,6 +106,7 @@ function setState($state)
     switch ($state) {
         case 'NO_INTERNET':
         case 'IDLE':
+        case 'NO_VPN':
             file_put_contents(ROOT_DIR . 'current_state', $state);
             break;
         default:
@@ -103,7 +115,7 @@ function setState($state)
 }
 
 $i = 0;
-$lastConnectionCheck = 0;
+$lastConnectionCheck = $lastVpnCheck = 0;
 $currentState = null;
 $a = true;
 $firstRun = true;
@@ -121,11 +133,25 @@ while (true) {
             setState('NO_INTERNET');
             echo 'OFFLINE :-(' . PHP_EOL;
         } else {
-            setState('IDLE');
+            setState('NO_VPN');
             echo 'ONLINE' . PHP_EOL;
         }
 
         $lastConnectionCheck = time();
+    }
+
+    if ($lastVpnCheck + 60 < time() && $currentState == 'NO_VPN') {
+        echo 'checking vpn connection...';
+
+        if (!checkVpnConnection()) {
+            setState('NO_VPN');
+            echo 'NO VPN ESTABLISHED :-(' . PHP_EOL;
+        } else {
+            setState('IDLE');
+            echo 'VPN ESTABLISHED' . PHP_EOL;
+        }
+
+        $lastVpnCheck = time();
     }
 
     if (file_exists(ROOT_DIR . 'current_state')) {
@@ -139,10 +165,18 @@ while (true) {
             setTraffic(TRAFFIC_NONE);
         }
 
+        $a = !$a;
+    } else if ($currentState == 'NO_VPN') {
+        if ($a) {
+            setTraffic(TRAFFIC_YELLOW);
+        } else {
+            setTraffic(TRAFFIC_NONE);
+        }
+
         $a =! $a;
     } else if ($currentState == 'IDLE') {
         if ($a) {
-            setTraffic(TRAFFIC_YELLOW);
+            setTraffic(TRAFFIC_GREEN);
         } else {
             setTraffic(TRAFFIC_NONE);
         }
