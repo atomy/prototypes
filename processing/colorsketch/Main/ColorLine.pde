@@ -25,9 +25,9 @@ class ColorLine extends Node {
   void draw() {
     strokeWeight(flow);
     noFill();
-    stroke(255);   
     stroke(clr);
     beginShape();
+    
     for(Point p : content) {
       vertex(p.x, p.y);
     }
@@ -39,8 +39,8 @@ class ColorLine extends Node {
    
   void drawDebug() {
     Point mid = content.get(content.size() / 2);
-    stroke(clr);
-    fill(clr);
+    stroke(255);
+    fill(0);
     textFont(dbgFont);
     int x = mid.x+10;
     int y = mid.y;

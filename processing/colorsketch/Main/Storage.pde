@@ -1,42 +1,46 @@
 class Storage extends Node {
+  ArrayList<String> debugTexts = new ArrayList<String>();
   Point p;
-  float fillprt;
-  color clr = color(100,100,0);
-  int sizeX = 100;
+  float flow;
+  color clr = color(255,255,255);
+  int sizeX = 200;
   int sizeY = 40;
-  int safeDistance = 10;  
+  int safeDistance = 10;
   
-  Storage(Point p) {
-    this.p = p;
-    fillprt = 0.0f; // 0.0%
+  Storage() {
+    this.p = new Point(width/2 - sizeX/2, height - sizeY - 20);
   }
   
   void draw() {
-    noStroke();
+    stroke(0);
+    strokeWeight(2);
     fill(clr);
     rect(this.p.x, this.p.y, this.sizeX, this.sizeY);
     
-    if(enableDebug)
+    if(enableDebug) {
       drawDebug();
+    }
+  }
+  
+  void addDebugText(String text) {
+    debugTexts.add(text);
   }
   
   void drawDebug() {
-    Point mid = p;
-    stroke(clr);
-    fill(clr);
+    int x = p.x+sizeX+10;
+    int y = p.y;
     textFont(dbgFont);
-    int x = mid.x+sizeX+10;
-    int y = mid.y;
-    text("ref: " + this.toString(), x, y);
-    y+=10;
-    for(Node n : prevNodes) {
-      text("prev: " + n.toString(), x, y);
-      y+=10;      
+    stroke(255);
+    fill(255);        
+    text("ref" + this, x, y);   
+    y += 10;
+    text("flow: " + this.flow, x, y);
+    y += 10;
+    
+    for (String debugText : debugTexts) {
+      text(debugText, x, y);
+      y += 10;
     }
-    for(Node n : nextNodes) {
-      text("next: " + n.toString(), x, y);
-      y+=10;
-    }     
   }
   
   void AddLine(ColorLine clrLine) {
@@ -47,5 +51,18 @@ class Storage extends Node {
     if(p.x > this.p.x - safeDistance && p.x < this.p.x + sizeX + safeDistance && p.y > this.p.y - safeDistance && p.y < this.p.y + sizeY + safeDistance)
       return true;
     return false;    
-  }  
+  }
+  
+  void calcAndApplyColor() {
+    println("recalculate color for node network");
+    float calcFlow = 0;
+   
+    for(Node prevNode : prevNodes) {
+      ColorLine prevColorLine = (ColorLine) prevNode;
+      clr = blendColors(prevColorLine.clr, clr, prevColorLine.flow, calcFlow);
+      calcFlow += prevColorLine.flow;
+    }
+    
+    flow = calcFlow;
+  }
 }

@@ -1,6 +1,6 @@
 class FarbTopf extends Node {
   Point p;
-  int sizeXY = 30;
+  int sizeXY = 60;
   int safeDistance = 10;
   
   FarbTopf(color clr, Point p) {
@@ -23,12 +23,13 @@ class FarbTopf extends Node {
   
   void drawDebug() {
     Point mid = p;
-    stroke(clr);
-    fill(clr);
+    stroke(0);
+    strokeWeight(3);
+    fill(255);
     textFont(dbgFont);
     int x = mid.x+sizeXY+10;
     int y = mid.y;
-    text("ref: " + this.toString(), x, y);
+    text("ref: " + this.toString(), x, y);    
     y+=10;
     for(Node n : prevNodes) {
       text("prev: " + n.toString(), x, y);

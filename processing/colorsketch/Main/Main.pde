@@ -5,38 +5,53 @@ ArrayList<Point> junctionPoints;
 ColorLine curLine;
 ColorLine lastLine;
 Storage store;
-PFont dbgFont = createFont("ArialMT", 10);
+PFont dbgFont;
 boolean enableDebug = false;
+float minDistance = 9999999999.0f;
+boolean showTutorial = true;
+PImage tutorialImage;
 
 void setup() {
-  size(800,600);
-  smooth();
-  background(0);
+  fullScreen();
+  //size(800,600);
+  smooth();  
   lastTick = System.currentTimeMillis();
   lines = new ArrayList<ColorLine>();
   farbToepfe = new ArrayList<FarbTopf>();
   junctionPoints = new ArrayList<Point>();
   curLine = null;
   lastLine = null;
-  farbToepfe.add(new FarbTopf(color(255,0,0),new Point(20,20)));
-  farbToepfe.add(new FarbTopf(color(0,255,0),new Point(200,20)));
-  farbToepfe.add(new FarbTopf(color(0,0,255),new Point(100,100))); 
-  store = new Storage(new Point(350,500));
+  farbToepfe.add(new FarbTopf(color(255,0,0),new Point(width - width/3 + 50, height/5)));
+  farbToepfe.add(new FarbTopf(color(0,255,0),new Point(width - width/3 - width/3 + 50, height/5)));
+  farbToepfe.add(new FarbTopf(color(0,0,255),new Point(width - width/3 - width/3 - width/3 + 50, height/5))); 
+  store = new Storage();
+  dbgFont = createFont("ArialMT", 10);  
+  tutorialImage = loadImage("colorio.howto.png");
 }
 
 void draw() {
-  background(0);
+  background(255);
+  
+  if (showTutorial) {
+    image(tutorialImage, 0, 0);
+    return;
+  }
+  
   tick(System.currentTimeMillis()-lastTick);
   lastTick = System.currentTimeMillis();  
+  
   for(ColorLine clrLine : lines) {
     clrLine.draw();
-  }  
+  }
+  
   for(FarbTopf topf : farbToepfe) {
     topf.draw();
   }
+  
   for(Point p : junctionPoints) {
     p.draw();
   }
+  
   store.draw();
 }
 
@@ -47,18 +62,26 @@ void mouseDragged() {
 }
 
 void mouseReleased() {
+  if (showTutorial) {
+    showTutorial = false;
+    return;
+  }
+  
   if(curLine != null) {
     lastLine = curLine;
     curLine = null;
+    
     // no junction, so we need to search for something to attach to or we gonna die
     if(!HandleLineJunctions(lastLine)) {
       // check if last point is near our storage
       if(store.CanPointAttach(lastLine.content.get(lastLine.content.size()-1))) {
         store.AddLine(lastLine);
+        store.addDebugText("prev line: " + lastLine);
         //println("adding line to store");
         lastLine.nextNodes.add(store);
       }
     }
+    
     if(lastLine.nextNodes.size() <= 0) {
       //println("killed, no next nodes");
       lastLine.deleteMe = true;
@@ -110,41 +133,64 @@ boolean HandleLineJunctions(ColorLine checkLine) {
   line1 = checkLine;
   Point junctionPoint = null;
   ArrayList<Point> ignorePoints = new ArrayList<Point>();
+  minDistance = 9999999.0f; // %TODO
+  
   // check every point of the given line against our current lines on the playfield
   for(Point checkPoint : checkLine.content) {
    for(ColorLine clrLine : lines) {
-     if(clrLine == checkLine)
+     if(clrLine == checkLine) {
        continue;
+     }
+    
      for(Point clrPoint : clrLine.content) {
        boolean skip = false;
+     
        // skip already found areas
        for(Point iPoint : ignorePoints) {
          if(iPoint.IsNearPoint(clrPoint))
            skip = true;
        }
+       
        // skip farbtöpfe
        for(FarbTopf topf : farbToepfe) {
-         if(topf.CanPointAttach(clrPoint))
+         if(topf.CanPointAttach(clrPoint)) {           
            skip = true;
-       }      
+         }
+       }
+       
        // skip storage 
-       if(store.CanPointAttach(clrPoint))
+       if(store.CanPointAttach(clrPoint)) {        
          skip = true;
-       if(skip)
+       }
+       
+       if(skip) {
          continue;
+       }
+       
        // touché!
-       if(clrPoint.Touches(checkPoint)) {
-         if(line2 != null) { // multiple junctions found, rewind and kill the invalid new line
-           //println("multiple junctions!");
-           RemoveLine(checkLine);
+       if (clrPoint.Touches(checkPoint)) {
+         if (line2 != null && false) { // multiple junctions found, rewind and kill the invalid new line
+           if (enableDebug) {
+             println("multiple junctions!");             
+           }
+           
+           //RemoveLine(checkLine);
            return true;
          }
+                  
          line2 = clrLine;
          junctionPoint = clrPoint;
+         HandleJunction(line1, line2, junctionPoint);
          ignorePoints.add(clrPoint); // ignore point for further runs, since we are checking a range and dont wanna hit it again
+         
+         return true;
        }
      }
-   } 
+   }
+   
+   if (enableDebug) {
+     println("not touching - as the closest we came is: " + minDistance);
+   }
   }
   
   // junction found, handle it
@@ -216,7 +262,10 @@ void RecalculateFlow() {
     GetFlowOfLine(clrLine);
     GetColorOfLine(clrLine);
 //    println("highest flow is now: " + clrLine.flow);
+//    println("highest flow is now: " + clrLine.flow);
   }
+  
+  store.calcAndApplyColor();
 }
 
 void GetFlowOfLine(ColorLine clrLine) {
@@ -268,82 +317,4 @@ color blendColors(color c1, color c2, float c1flow, float c2flow) {
   float g = ( green(c1)*(2*c1flow-1) + green(c2) ) / (2*c1flow);
   float b = ( blue(c1)*(2*c1flow-1) + blue(c2) ) / (2*c1flow);
   return color(r,g,b);
-}
-
-class Point {
-  int x, y;
-  Point(int x, int y) {
-    this.x = x;
-    this.y = y;
-  }
-  
-  boolean Equals(Point p) {
-    if(abs(p.x-this.x) <= 2 && abs(p.y-this.y) <= 2)
-      return true;
-    return false;
-  }
-  
-  boolean Touches(Point p) {
-    if(abs(p.x-this.x) <= 1 && abs(p.y-this.y) <= 1)
-      return true;
-    return false;
-  }  
-  
-  boolean IsNearPoint(Point p) {
-    if(abs(p.x-this.x) <= 2 && abs(p.y-this.y) <= 2)
-      return true;
-    return false;    
-  }
-  
-  void draw() {
-    strokeWeight(10);
-    stroke(255);
-    point(x, y);
-  }
-}
-
-class Node {
-  color clr;
-  boolean deleteMe;
-  ArrayList<Node> nextNodes = new ArrayList<Node>();
-  ArrayList<Node> prevNodes = new ArrayList<Node>();
-  
-  void RemoveNodeRelation(Node delNode) {
-//    println("OMGWTFBBQ: '" + delNode.toString() + "'");
-    for(Node n : nextNodes) {
-      if(n == delNode)
-        n.deleteMe = true;
-    }   
-      
-    for(Node n : prevNodes) {
-//      println("if node '" + n.toString() + "' == '" + delNode.toString() + "'");
-      if(n == delNode)        
-        n.deleteMe = true;
-    }
-    
-    ArrayList<Node> newNextNodes = new ArrayList<Node>();
-    ArrayList<Node> newPrevNodes = new ArrayList<Node>();    
-    for(Node n : nextNodes) {
-      if(!n.deleteMe)
-        newNextNodes.add(n);
-    } 
-    for(Node n : prevNodes) {
-      if(!n.deleteMe)
-        newPrevNodes.add(n);
-    }    
-    nextNodes = newNextNodes;
-    prevNodes = newPrevNodes;
-  }
-  
-  void CopyAndUpdatePrevNodes(Node oldNode) {
-    for(Node prev : oldNode.prevNodes) {
-      prev.nextNodes.add(this);
-    }
-  }  
-  
-  void CopyAndUpdateNextNodes(Node oldNode) {
-    for(Node next : oldNode.nextNodes) {
-      next.prevNodes.add(this);
-    }    
-  }
 }
